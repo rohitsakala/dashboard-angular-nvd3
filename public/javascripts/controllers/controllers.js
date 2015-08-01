@@ -24,7 +24,7 @@ app.controller('OpenBugsCtrl', ['$scope', function($scope){
 }]);
 
 
-app.controller('UnitTestsCtrl', function($scope) {
+app.controller('UnitTestsCtrl', ['$scope', function($scope) {
   $scope.UnitTestsCtrlTest = 'UnitTestsCtrlTest';
   //$scope.ntest = 'this is ndv3';
   $scope.options = {
@@ -93,7 +93,7 @@ app.controller('UnitTestsCtrl', function($scope) {
                 ]
             }
         ]
-});
+}]);
 
 app.controller('CoverageCtrl', ['$scope', function($scope){
   $scope.CoverageCtrlTest = 'CoverageCtrlTest';
