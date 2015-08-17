@@ -1,143 +1,187 @@
 var express = require('express');
 var router = express.Router();
 var rest = require('restler');
-var async = require('async');
+var csv = require("fast-csv");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index');
 });
 
-router.get('/partials/openbugs.html', function(req, res, next) {
-  res.render('partials/openbugs');
+router.get('/partials/bugstatus.html', function(req, res, next) {
+  res.render('partials/bugstatus');
 });
 
-router.get('/partials/unittests.html', function(req, res, next) {
-  res.render('partials/unittests');
+router.get('/partials/bugseverity.html', function(req, res, next) {
+  res.render('partials/bugseverity');
 });
 
-router.get('/partials/coverage.html', function(req, res, next) {
-  res.render('partials/coverage');
+router.get('/partials/unittestcoverage.html', function(req, res, next) {
+  res.render('partials/unittestcoverage');
 });
 
-router.get('/bugs', function(req, res, next){
-  var projectBugs = [];
-  rest.get('https://bugs.opendaylight.org/jsonrpc.cgi?method=Product.get_selectable_products').on('complete', function(data){
-    var url = 'https://bugs.opendaylight.org/jsonrpc.cgi?method=Product.get&params=[{"ids":[' + data.result.ids + ']}]';
-    rest.get(url).on('success', function(dataPerProject){
-      var productNames = [];
-      for(var i = 0; i < dataPerProject.result.products.length; i++){
-        productNames.push(dataPerProject.result.products[i].name);
-      }
-      async.eachLimit(productNames, 10, function(param, eachCb){
-        var urlPerProduct = 'https://bugs.opendaylight.org/jsonrpc.cgi?method=Bug.search&params=[{"product":["' + param + '"]}]';
-        rest.get(urlPerProduct).on('complete', function(bugsPerProject, param){
-          //if(!(bugsPerProject.result.bugs == null )){
-            var entry = new Object();
-            if((bugsPerProject.result.bugs.length != 0)){
-              entry.product = bugsPerProject.result.bugs[0].product;
-              entry.numberOfBugs = bugsPerProject.result.bugs.length;
-              projectBugs.push(entry);
-            }
-            //else{
-              //entry.product = 'Undefined product'
-            //}
+router.get('/partials/integrationcoverage.html', function(req, res, next) {
+  res.render('partials/integrationcoverage');
+});
 
-          //}
-          eachCb(null);
-        });
-      }, function(err){
-        res.json(projectBugs);
-      });
-      //}
-    });
+router.get('/partials/overallcoverage.html', function(req, res, next) {
+  res.render('partials/overallcoverage');
+});
+
+router.get('/partials/about.html', function(req, res, next) {
+  res.render('partials/about');
+});
+
+router.get('/bugstatus', function(req, res, next){
+  var map = new Map();
+  rest.get('https://bugs.opendaylight.org/report.cgi?bug_status=RESOLVED&bug_status=VERIFIED&resolution=---&resolution=FIXED&resolution=INVALID&resolution=WONTFIX&resolution=DUPLICATE&resolution=WORKSFORME&x_axis_field=resolution&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
+    var temp = dataURL.split('\n');
+    temp[0] = "Product,---,FIXED,INVALID,WONTFIX,DUPLICATE,WORKSFORME";
+    dataURL = temp.join('\n');
+    csv
+     .fromString(dataURL, {headers: true})
+     .on("data", function(data){
+         var sum = +data.FIXED + +data.INVALID + +data.WONTFIX + +data.DUPLICATE + +data.WORKSFORME;
+         map.set(data.Product, {});
+         map.get(data.Product).closed = sum;
+     })
+     .on("end", function(){
+       rest.get('https://bugs.opendaylight.org/report.cgi?bug_status=UNCONFIRMED&bug_status=CONFIRMED&bug_status=IN_PROGRESS&bug_status=WAITING_FOR_REVIEW&resolution=---&x_axis_field=bug_status&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
+         var temp = dataURL.split('\n');
+         temp[0] = "Product,UNCONFIRMED,CONFIRMED,IN_PROGRESS,WAITING_FOR_REVIEW";
+         dataURL = temp.join('\n');
+         csv
+          .fromString(dataURL, {headers: true})
+          .on("data", function(data){
+              var item = map.get(data.Product);
+              if(typeof item === 'undefined'){
+                map.set(data.Product, {closed: 0, open: (+data.UNCONFIRMED + +data.CONFIRMED), working: (+data.IN_PROGRESS + +data.WAITING_FOR_REVIEW)});
+              }else{
+                item.open = +data.UNCONFIRMED + +data.CONFIRMED;
+                item.working = +data.IN_PROGRESS + +data.WAITING_FOR_REVIEW;
+                map.set(data.Product, item);
+              }
+          })
+          .on("end", function(){
+            var open, closed, working;
+            open = {key: 'Open', color: '#FF0000', values: []};
+            closed = {key: 'Closed', color: '#33CC33', values: []};
+            working = {key: 'Open', color: '#FFFF00', values: []};
+            map.forEach(function(value, key) {
+              open.values.push({ x : key, y : value.open});
+              closed.values.push({ x : key, y : value.closed});
+              working.values.push({ x : key, y : value.working});
+            }, map);
+            res.json([closed, working, open]);
+          });
+       });
+     });
+     });
+});
+
+router.get('/bugseveritydetailed', function(req, res, next){
+  rest.get('https://bugs.opendaylight.org/report.cgi?resolution=---&x_axis_field=bug_severity&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
+    var temp = dataURL.split('\n');
+    temp[0] = "Product,blocker,critical,major,normal,minor,trivial,enhancement";
+    dataURL = temp.join('\n');
+    var blocker, critical, major, normal, minor, trivial, enhancement;
+    blocker = {key: 'Blocker', color: '#FF0000', values: []};
+    critical = {key: 'Critical', color: '#FF3300', values: []};
+    major = {key: 'Major', color: '#FFCC00', values: []};
+    normal = {key: 'Normal', color: '#CCFF66', values: []};
+    minor = {key: 'Minor', color: '#66FFFF', values: []};
+    trivial = {key: 'Trivial', color: '#00CCFF', values: []};
+    enhancement = {key: 'Enhancement', color: '#0033CC', values: []};
+    csv
+     .fromString(dataURL, {headers: true})
+     .on("data", function(data){
+
+         blocker.values.push({ x : data.Product, y : data.blocker});
+         critical.values.push({ x : data.Product, y : data.critical});
+         major.values.push({ x : data.Product, y : data.major});
+         normal.values.push({ x : data.Product, y : data.normal});
+         minor.values.push({ x : data.Product, y : data.minor});
+         trivial.values.push({ x : data.Product, y : data.trivial});
+         enhancement.values.push({ x : data.Product, y : data.enhancement});
+     })
+     .on("end", function(){
+          res.json([enhancement, trivial, minor, normal, major, critical, blocker]);
+     });
   });
 });
 
+router.get('/bugseverity', function(req, res, next){
+  rest.get('https://bugs.opendaylight.org/report.cgi?resolution=---&x_axis_field=bug_severity&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
+    var temp = dataURL.split('\n');
+    temp[0] = "Product,blocker,critical,major,normal,minor,trivial,enhancement";
+    dataURL = temp.join('\n');
+    var critical, normal, enhancement;
+    critical = {key: 'Critical', color: '#FF0000', values: []};
+    normal = {key: 'Normal', color: '#FFFF00', values: []};
+    enhancement = {key: 'Enhancement', color: '#33CC33', values: []};
+    csv
+     .fromString(dataURL, {headers: true})
+     .on("data", function(data){
+         critical.values.push({ x : data.Product, y : (+data.blocker + +data.critical + +data.major)});
+         //critical.values.push({ x : data.Product, y : data.critical});
+         //major.values.push({ x : data.Product, y : data.major});
+         normal.values.push({ x : data.Product, y : (+data.normal + +data.minor + +data.trivial)});
+         //minor.values.push({ x : data.Product, y : data.minor});
+         //trivial.values.push({ x : data.Product, y : data.trivial});
+         enhancement.values.push({ x : data.Product, y : data.enhancement});
+     })
+     .on("end", function(){
+          res.json([enhancement, normal, critical]);
+     });
+  });
+});
 
-router.get('/coverage', function(req, res, next){
-  var projectCoverage = [];
-  rest.get('https://sonar.opendaylight.org/api/resources?format=json').on('success', function(data){
-    var ids = [];
+router.get('/unittestcoverage', function(req, res, next){
+  rest.get('https://sonar.opendaylight.org/api/resources?metrics=coverage&format=json').on('complete', function(data){
+    projectCoverage = [];
     for(var i = 0; i < data.length; i++){
-      ids.push(data[i].id);
+      projectCoverage.push({label: data[i].name, value: data[i].msr[0].val, projectId: data[i].id});
     }
-    async.each(ids, function(param, eachCb){
-      var url = 'https://sonar.opendaylight.org/api/resources?format=json&resource=' + param + '&metrics=coverage';
-      rest.get(url).on('success', function(dataPerProject){
-        if(!(typeof dataPerProject[0] === 'undefined')){
-          //projectCoverage.push(dataPerProject[0].name + "," + dataPerProject[0].msr[0].val);
-          var entry = new Object();
-          entry.product = dataPerProject[0].name;
-          entry.coverage = dataPerProject[0].msr[0].val;
-          //console.log(entry);
-          projectCoverage.push(entry);
-
-          //console.log('############### : ' + dataPerProject[0].name + "," + dataPerProject[0].msr[0].val);
-        }
-        eachCb(null);
-      });
-    },function(err){
-      res.json(projectCoverage);
-    })
-  });
-});
-
-router.get('/bugs.json', function(req, res, next) {
-  res.json([{product:"Add-on",numberOfBugs:3},{product:"Graveyard",numberOfBugs:56},{product:"Infrastructure",numberOfBugs:3},{product:"Air Mozilla",numberOfBugs:1},{product:"Services",numberOfBugs:9}, {product:"Add-on2",numberOfBugs:3},{product:"Graveyard2",numberOfBugs:36},{product:"Infrastructure2",numberOfBugs:21},{product:"Air Mozilla2",numberOfBugs:14},{product:"Services2",numberOfBugs:39}]);
-});
-
-router.get('/bugzilla', function(req, res, next){
-  var projectBugs = [];
-  rest.get('https://bugs.opendaylight.org/jsonrpc.cgi?method=Product.get_selectable_products').on('success', function(data){
-    var url = 'https://bugs.opendaylight.org/jsonrpc.cgi?method=Product.get&params=[{"ids":[' + data.result.ids + ']}]';
-    rest.get(url).on('success', function(dataPerProject){
-      for(var i = 0; i < dataPerProject.result.products.length; i++){
-        var urlPerProduct = 'https://bugs.opendaylight.org/jsonrpc.cgi?method=Bug.search&params=[{"product":["' + dataPerProject.result.products[i].name + '"]}]';
-        rest.get(urlPerProduct).on('success', function(bugsPerProject){
-          if(!(bugsPerProject.result.bugs == null )){
-            //console.log(bugsPerProject.result.bugs.length);
-            var entry = new Object();
-            if((bugsPerProject.result.bugs.length != 0)){
-              entry.product = bugsPerProject.result.bugs[0].product;
-            }else{
-              entry.product = 'Undefined product'
-            }
-            entry.numberOfBugs = bugsPerProject.result.bugs.length;
-            projectBugs.push(entry);
-          }else{
-            console.log('null');
-          }
-        });
-      }
+    projectCoverage.sort(function(a, b) {
+        return a.label.localeCompare(b.label);
     });
-    //res.end();
-    setTimeout(function () {
-        res.json(projectBugs);
-    }, 15000);
+    res.json([{
+      key: 'Cumulative Return',
+      values: projectCoverage
+    }]);
   });
 });
 
-
-
-
-/*
-function getCoverageData(){
-  rest.get('https://sonar.opendaylight.org/api/resources?format=json').on('success', function(data){
-    var projectCoverage = [];
-    for(i = 0; i < data.length; i++){
-      url = 'https://sonar.opendaylight.org/api/resources?format=json&resource=' + data[i].id + '&metrics=coverage';
-      rest.get(url).on('success', function(dataPerProject){
-        if(!(typeof dataPerProject[0] === 'undefined')){
-          projectCoverage.push(dataPerProject[0].name + "," + dataPerProject[0].msr[0].val);
-        }else{
-        }
-      });
+router.get('/integrationcoverage', function(req, res, next){
+  rest.get('https://sonar.opendaylight.org/api/resources?metrics=it_coverage&format=json').on('complete', function(data){
+    projectCoverage = [];
+    for(var i = 0; i < data.length; i++){
+      projectCoverage.push({label: data[i].name, value: data[i].msr[0].val, projectId: data[i].id});
     }
+    projectCoverage.sort(function(a, b) {
+        return a.label.localeCompare(b.label);
+    });
+    res.json([{
+      key: 'Cumulative Return',
+      values: projectCoverage
+    }]);
   });
-  return projectCoverage;
-  console.log("NOT WORKING!!!!!!!!!!!!!!!!!");
-}
+});
 
-*/
+router.get('/overallcoverage', function(req, res, next){
+  rest.get('https://sonar.opendaylight.org/api/resources?metrics=overall_coverage&format=json').on('complete', function(data){
+    projectCoverage = [];
+    for(var i = 0; i < data.length; i++){
+      projectCoverage.push({label: data[i].name, value: data[i].msr[0].val, projectId: data[i].id});
+    }
+    projectCoverage.sort(function(a, b) {
+        return a.label.localeCompare(b.label);
+    });
+    res.json([{
+      key: 'Cumulative Return',
+      values: projectCoverage
+    }]);
+  });
+});
+
 module.exports = router;

@@ -29,9 +29,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script>
     <script src="javascripts/angular-nvd3/angular-nvd3.min.js"></script>
+    <script src="javascripts/spin/spin.min.js"></script>
 
     <script src='/javascripts/angularApp.js'></script>
+    <script src='/javascripts/configurations/configurations.js'></script>
     <script src='/javascripts/controllers/controllers.js'></script>
+    <script src='/javascripts/services/services.js'></script>
   </head>
 
   <body ng-app='app'>
@@ -48,14 +51,14 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Dashboard</a></li>
+            <!-- <li><a href="#">Dashboard</a></li>
             <li><a href="#">Settings</a></li>
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Help</a></li>
+            <li><a href="#">Profile</a></li> -->
+            <li><a href="#/about">About</a></li>
           </ul>
-          <form class="navbar-form navbar-right">
+          <!--<form class="navbar-form navbar-right">
             <input type="text" class="form-control" placeholder="Search...">
-          </form>
+          </form> -->
         </div>
       </div>
     </nav>
@@ -64,13 +67,41 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li><a href="#/openbugs">OpenBugs</a></li>
-            <li><a href="#/unittests">Unit Tests</a></li>
-            <li><a href="#/coverage">Coverage</a></li>
+              <li class="active"><a>Bugs</a></li>
+              <li><a href="#/bugstatus">Status of Bugs</a></li>
+              <li><a href="#/bugseverity">Severity of Bugs</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+              <li class="active"><a>Code Coverage</a></li>
+              <li><a href="#/unittestcoverage">Unit Test Coverage</a></li>
+              <li><a href="#/integrationcoverage">Integraioin Coverage</a></li>
+              <li><a href="#/overallcoverage">Overall Coverage</a></li>
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <ui-view><ui-view>
+          <div ng-if="!stateIsLoading" ui-view></div>
+          <div ng-if="stateIsLoading" id='spinner' style="margin: auto 0;"></div>
+          <script>
+              var opts = {
+                  lines: 10,
+                  length: 7,
+                  width: 4,
+                  radius: 10,
+                  corners: 1,
+                  rotate: 0,
+                  color: '#000',
+                  speed: 1,
+                  trail: 60,
+                  className: 'spinner',
+                  zIndex: 2e9,
+                  top: 25,
+                  left: 25,
+                  shadow: false,
+                  hwaccel: false
+              };
+              var target = document.getElementById('spinner');
+              var spinner = new Spinner(opts).spin(target);
+          </script>
         </div>
       </div>
     </div>
