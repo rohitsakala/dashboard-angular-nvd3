@@ -66,7 +66,7 @@ router.get('/bugstatus', function(req, res, next){
             var open, closed, working;
             open = {key: 'Open', color: '#FF0000', values: []};
             closed = {key: 'Closed', color: '#33CC33', values: []};
-            working = {key: 'Open', color: '#FFFF00', values: []};
+            working = {key: 'Working on', color: '#FFFF00', values: []};
             map.forEach(function(value, key) {
               open.values.push({ x : key, y : value.open});
               closed.values.push({ x : key, y : value.closed});
@@ -128,7 +128,7 @@ router.get('/bugseverity', function(req, res, next){
          normal.values.push({ x : data.Product, y : (+data.normal + +data.minor + +data.trivial)});
          //minor.values.push({ x : data.Product, y : data.minor});
          //trivial.values.push({ x : data.Product, y : data.trivial});
-         enhancement.values.push({ x : data.Product, y : data.enhancement});
+         enhancement.values.push({ x : data.Product, y : +data.enhancement});
      })
      .on("end", function(){
           res.json([enhancement, normal, critical]);
