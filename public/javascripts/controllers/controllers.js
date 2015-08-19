@@ -1,7 +1,6 @@
 var app = angular.module('app');
 
 app.controller('BugStatusCtrl', ['$scope', 'BugStatusService', function($scope, BugStatusService){
-  $scope.BugStatusCtrlTest = 'BugStatusCtrlTest';
   $scope.optionsBugStatus = {
             chart: {
                 type: 'multiBarChart',
@@ -40,7 +39,7 @@ app.controller('BugStatusCtrl', ['$scope', 'BugStatusService', function($scope, 
                 },
                 yAxis: {
                     axisLabel: 'Status of Bugs',
-                    axisLabelDistance: 500,
+                    axisLabelDistance: 30,
                     tickFormat : function (d) { return d }
                 }
             },
@@ -57,13 +56,7 @@ app.controller('BugStatusCtrl', ['$scope', 'BugStatusService', function($scope, 
   $scope.dataBugStatus = BugStatusService.bugStatusData;
 }]);
 
-
-app.controller('UnitTestsCtrl', ['$scope', function($scope) {
-  $scope.UnitTestsCtrlTest = 'UnitTestsCtrlTest';
-}]);
-
 app.controller('BugSeverityCtrl', ['$scope', 'BugSeverityService', function($scope, BugSeverityService) {
-  $scope.BugSeverityCtrlTest = 'BugSeverityCtrlTest';
   $scope.optionsBugSeverity = {
             chart: {
                 type: 'multiBarChart',
@@ -103,7 +96,7 @@ app.controller('BugSeverityCtrl', ['$scope', 'BugSeverityService', function($sco
                 },
                 yAxis: {
                     axisLabel: 'Severity of Bugs',
-                    axisLabelDistance: 500,
+                    axisLabelDistance: 30,
                     tickFormat : function (d) { return d }
                 }
             },
@@ -121,7 +114,6 @@ app.controller('BugSeverityCtrl', ['$scope', 'BugSeverityService', function($sco
 }]);
 
 app.controller('UnitTestCoverageCtrl', ['$scope', 'UnitTestCoverageService', function($scope, UnitTestCoverageService){
-  $scope.unitTestCoverageCtrlTest = 'UnitTestCoverageCtrlTest';
   $scope.optionsUnitTestCoverage = {
             chart: {
                 type: 'discreteBarChart',
@@ -152,7 +144,7 @@ app.controller('UnitTestCoverageCtrl', ['$scope', 'UnitTestCoverageService', fun
                 },
                 yAxis: {
                     axisLabel: 'Unit Test Coverage',
-                    axisLabelDistance: 500
+                    axisLabelDistance: 30
                 }
             },
             title: {
@@ -169,7 +161,6 @@ app.controller('UnitTestCoverageCtrl', ['$scope', 'UnitTestCoverageService', fun
 }]);
 
 app.controller('IntegrationCoverageCtrl', ['$scope', 'IntegrationCoverageService', function($scope, IntegrationCoverageService){
-  $scope.integrationCoverageCtrlTest = 'IntegrationCoverageCtrlTest';
   $scope.optionsIntegrationCoverage = {
             chart: {
                 type: 'discreteBarChart',
@@ -200,7 +191,7 @@ app.controller('IntegrationCoverageCtrl', ['$scope', 'IntegrationCoverageService
                 },
                 yAxis: {
                     axisLabel: 'Integration Test Coverage',
-                    axisLabelDistance: 500
+                    axisLabelDistance: 30
                 }
             },
             title: {
@@ -217,7 +208,6 @@ app.controller('IntegrationCoverageCtrl', ['$scope', 'IntegrationCoverageService
 }]);
 
 app.controller('OverallCoverageCtrl', ['$scope', 'OverallCoverageService', function($scope, OverallCoverageService){
-  $scope.overallCoverageCtrlTest = 'OverallCoverageCtrlTest';
   $scope.optionsOverallCoverage = {
             chart: {
                 type: 'discreteBarChart',
@@ -248,7 +238,7 @@ app.controller('OverallCoverageCtrl', ['$scope', 'OverallCoverageService', funct
                 },
                 yAxis: {
                     axisLabel: 'Overall Test Coverage',
-                    axisLabelDistance: 500
+                    axisLabelDistance: 30
                 }
             },
             title: {
@@ -265,5 +255,4 @@ app.controller('OverallCoverageCtrl', ['$scope', 'OverallCoverageService', funct
 }]);
 
 app.controller('AboutCtrl', ['$scope', function($scope) {
-  $scope.AboutCtrlTest = 'AboutCtrlTest';
 }]);

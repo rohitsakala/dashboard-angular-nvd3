@@ -79,37 +79,6 @@ router.get('/bugstatus', function(req, res, next){
      });
 });
 
-router.get('/bugseveritydetailed', function(req, res, next){
-  rest.get('https://bugs.opendaylight.org/report.cgi?resolution=---&x_axis_field=bug_severity&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
-    var temp = dataURL.split('\n');
-    temp[0] = "Product,blocker,critical,major,normal,minor,trivial,enhancement";
-    dataURL = temp.join('\n');
-    var blocker, critical, major, normal, minor, trivial, enhancement;
-    blocker = {key: 'Blocker', color: '#FF0000', values: []};
-    critical = {key: 'Critical', color: '#FF3300', values: []};
-    major = {key: 'Major', color: '#FFCC00', values: []};
-    normal = {key: 'Normal', color: '#CCFF66', values: []};
-    minor = {key: 'Minor', color: '#66FFFF', values: []};
-    trivial = {key: 'Trivial', color: '#00CCFF', values: []};
-    enhancement = {key: 'Enhancement', color: '#0033CC', values: []};
-    csv
-     .fromString(dataURL, {headers: true})
-     .on("data", function(data){
-
-         blocker.values.push({ x : data.Product, y : data.blocker});
-         critical.values.push({ x : data.Product, y : data.critical});
-         major.values.push({ x : data.Product, y : data.major});
-         normal.values.push({ x : data.Product, y : data.normal});
-         minor.values.push({ x : data.Product, y : data.minor});
-         trivial.values.push({ x : data.Product, y : data.trivial});
-         enhancement.values.push({ x : data.Product, y : data.enhancement});
-     })
-     .on("end", function(){
-          res.json([enhancement, trivial, minor, normal, major, critical, blocker]);
-     });
-  });
-});
-
 router.get('/bugseverity', function(req, res, next){
   rest.get('https://bugs.opendaylight.org/report.cgi?resolution=---&x_axis_field=bug_severity&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
     var temp = dataURL.split('\n');
@@ -123,11 +92,7 @@ router.get('/bugseverity', function(req, res, next){
      .fromString(dataURL, {headers: true})
      .on("data", function(data){
          critical.values.push({ x : data.Product, y : (+data.blocker + +data.critical + +data.major)});
-         //critical.values.push({ x : data.Product, y : data.critical});
-         //major.values.push({ x : data.Product, y : data.major});
          normal.values.push({ x : data.Product, y : (+data.normal + +data.minor + +data.trivial)});
-         //minor.values.push({ x : data.Product, y : data.minor});
-         //trivial.values.push({ x : data.Product, y : data.trivial});
          enhancement.values.push({ x : data.Product, y : +data.enhancement});
      })
      .on("end", function(){
@@ -138,7 +103,7 @@ router.get('/bugseverity', function(req, res, next){
 
 router.get('/unittestcoverage', function(req, res, next){
   rest.get('https://sonar.opendaylight.org/api/resources?metrics=coverage&format=json').on('complete', function(data){
-    projectCoverage = [];
+    var projectCoverage = [];
     for(var i = 0; i < data.length; i++){
       projectCoverage.push({label: data[i].name, value: data[i].msr[0].val, projectId: data[i].id});
     }
@@ -154,7 +119,7 @@ router.get('/unittestcoverage', function(req, res, next){
 
 router.get('/integrationcoverage', function(req, res, next){
   rest.get('https://sonar.opendaylight.org/api/resources?metrics=it_coverage&format=json').on('complete', function(data){
-    projectCoverage = [];
+    var projectCoverage = [];
     for(var i = 0; i < data.length; i++){
       projectCoverage.push({label: data[i].name, value: data[i].msr[0].val, projectId: data[i].id});
     }
@@ -170,7 +135,7 @@ router.get('/integrationcoverage', function(req, res, next){
 
 router.get('/overallcoverage', function(req, res, next){
   rest.get('https://sonar.opendaylight.org/api/resources?metrics=overall_coverage&format=json').on('complete', function(data){
-    projectCoverage = [];
+    var projectCoverage = [];
     for(var i = 0; i < data.length; i++){
       projectCoverage.push({label: data[i].name, value: data[i].msr[0].val, projectId: data[i].id});
     }
