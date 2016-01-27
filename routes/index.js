@@ -16,6 +16,10 @@ router.get('/partials/bugseverity.html', function(req, res, next) {
   res.render('partials/bugseverity');
 });
 
+router.get('/partials/bugpriority.html', function(req, res, next) {
+  res.render('partials/bugpriority');
+});
+
 router.get('/partials/unittestcoverage.html', function(req, res, next) {
   res.render('partials/unittestcoverage');
 });
@@ -31,6 +35,7 @@ router.get('/partials/overallcoverage.html', function(req, res, next) {
 router.get('/partials/about.html', function(req, res, next) {
   res.render('partials/about');
 });
+
 
 router.get('/bugstatus', function(req, res, next){
   var map = new Map();
@@ -80,7 +85,30 @@ router.get('/bugstatus', function(req, res, next){
 });
 
 router.get('/bugseverity', function(req, res, next){
-  rest.get('https://bugs.opendaylight.org/report.cgi?resolution=---&x_axis_field=bug_severity&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
+  rest.get('https://bugs.opendaylight.org/report.cgi?resolution=---&x_axis_field=priority&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
+    console.log('dataURL');
+   /* var temp = dataURL.split('\n');
+    temp[0] = "Product,blocker,critical,major,normal,minor,trivial,enhancement";
+    dataURL = temp.join('\n');
+    var critical, normal, enhancement;
+    critical = {key: 'Critical', color: '#FF0000', values: []};
+    normal = {key: 'Normal', color: '#FFFF00', values: []};
+    enhancement = {key: 'Enhancement', color: '#33CC33', values: []};
+    csv
+     .fromString(dataURL, {headers: true})
+     .on("data", function(data){
+         critical.values.push({ x : data.Product, y : (+data.blocker + +data.critical + +data.major)});
+         normal.values.push({ x : data.Product, y : (+data.normal + +data.minor + +data.trivial)});
+         enhancement.values.push({ x : data.Product, y : +data.enhancement});
+     })
+     .on("end", function(){
+          res.json([enhancement, normal, critical]);
+     });*/
+  });
+});
+
+router.get('/bugpriority', function(req, res, next){
+  rest.get('https://bugs.opendaylight.org/report.cgi?x_axis_field=priority&y_axis_field=product&z_axis_field=&no_redirect=1&query_format=report-table&short_desc_type=allwordssubstr&short_desc=&resolution=---&longdesc_type=allwordssubstr&longdesc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&bug_id=&bug_id_type=anyexact&emailassigned_to1=1&emailtype1=substring&email1=&emailassigned_to2=1&emailreporter2=1&emailcc2=1&emailtype2=substring&email2=&emaillongdesc3=1&emailtype3=substring&email3=&chfieldvalue=&chfieldfrom=&chfieldto=Now&j_top=AND&f1=noop&o1=noop&v1=&format=table&action=wrap').on('complete', function(dataURL) {
     var temp = dataURL.split('\n');
     temp[0] = "Product,blocker,critical,major,normal,minor,trivial,enhancement";
     dataURL = temp.join('\n');
