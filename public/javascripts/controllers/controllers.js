@@ -129,11 +129,11 @@ app.controller('BugPriorityCtrl', ['$scope', 'BugPriorityService', function($sco
                     elementClick: function(e) {
                       console.log(e);
                       if(e.data.series == 2){
-                        window.open('https://bugs.opendaylight.org/buglist.cgi?action=wrap&priority=Highest&priority=Highproduct=' + e.data.x + '&resolution=---').focus();
+                        window.open('https://bugs.opendaylight.org/buglist.cgi?action=wrap&priority=Highest&priority=High&product=' + e.data.x + '&resolution=---').focus();
                       }else if(e.data.series == 1){
-                        window.open('https://bugs.opendaylight.org/buglist.cgi?action=wrap&bug_severity=normal&bug_severity=minor&bug_severity=trivial&product=' + e.data.x + '&resolution=---').focus();
+                        window.open('https://bugs.opendaylight.org/buglist.cgi?action=wrap&priority=Normal&priority=---&product=' + e.data.x + '&resolution=---').focus();
                       }else if (e.data.series == 0) {
-                        window.open('https://bugs.opendaylight.org/buglist.cgi?action=wrap&bug_severity=enhancement&product=' + e.data.x + '&resolution=---').focus();
+                        window.open('https://bugs.opendaylight.org/buglist.cgi?action=wrap&priority=Lowest&priority=Low&product=' + e.data.x + '&resolution=---').focus();
                       }
                     }
                   }

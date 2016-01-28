@@ -123,6 +123,9 @@ router.get('/bugpriority', function(req, res, next){
          Low.values.push({ x : data.Product, y : (+data.Low + +data.Lowest)});
      })
      .on("end", function(){
+          console.log(High);
+          console.log(Normal);
+          console.log(Low);
           res.json([High, Normal, Low]);
      });
   });
