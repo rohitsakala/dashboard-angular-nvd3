@@ -24,6 +24,18 @@ app.factory('BugSeverityService', ['$http', function($http){
   return o;
 }]);
 
+app.factory('BugPriorityService', ['$http', function($http){
+  var o = {
+    bugPriorityData :[]
+  };
+  o.getBugPriority = function() {
+    return $http.get('/bugpriority', {cache: true}).success(function(data){
+      angular.copy(data, o.bugPriorityData);
+    });
+  };
+  return o;
+}]);
+
 app.factory('UnitTestCoverageService', ['$http', function($http){
   var o = {
     unitTestCoverageData :[]

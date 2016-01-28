@@ -20,6 +20,15 @@ app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $ur
           return BugSeverityService.getBugSeverity();
         }]
       }
+    }).state('bugPriority', {
+      url: '/bugpriority',
+      templateUrl: 'partials/bugpriority.html',
+      controller: 'BugPriorityCtrl',
+      resolve: {
+        bugPriorityPromise: ['BugPriorityService', function(BugPriorityService){
+          return BugPriorityService.getBugPriority();
+        }]
+      }
     }).state('unitTestCoverage', {
       url: '/unittestcoverage',
       templateUrl: 'partials/unittestcoverage.html',
