@@ -109,7 +109,7 @@ router.get('/bugpriority', function(req, res, next){
   rest.get('https://bugs.opendaylight.org/report.cgi?resolution=---&x_axis_field=priority&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
     console.log(dataURL + "Actual");
     var temp = dataURL.split('\n');
-    temp[0] = "Product,Highest,High,Normal,Low,Lowest,---";
+    temp[0] = "Product,Highest,High,Normal,Low,Lowest,Unspecified";
     dataURL = temp.join('\n');
     var High,Normal,Low;
     High = {key: 'High', color: '#FF0000', values: []};
@@ -119,7 +119,7 @@ router.get('/bugpriority', function(req, res, next){
      .fromString(dataURL, {headers: true})
      .on("data", function(data){
          High.values.push({ x : data.Product, y : (+data.Highest + +data.High)});
-         Normal.values.push({ x : data.Product, y : (+data.Normal + +data.---)});
+         Normal.values.push({ x : data.Product, y : (+data.Normal + +data.Unspecified)});
          Low.values.push({ x : data.Product, y : (+data.Low + +data.Lowest)});
      })
      .on("end", function(){
