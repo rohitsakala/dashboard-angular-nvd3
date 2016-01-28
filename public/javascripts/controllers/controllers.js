@@ -124,7 +124,7 @@ app.controller('BugPriorityCtrl', ['$scope', 'BugPriorityService', function($sco
                     bottom: 120,
                     left: 55
                 },
-               /* multibar: {
+                multibar: {
                   dispatch: {
                     elementClick: function(e) {
                       console.log(e);
@@ -137,7 +137,7 @@ app.controller('BugPriorityCtrl', ['$scope', 'BugPriorityService', function($sco
                       }
                     }
                   }
-                }, */
+                }, 
                 x: function(d){return d.x;},
                 y: function(d){return d.y;},
                 stacked: true,
