@@ -118,8 +118,8 @@ router.get('/bugpriority', function(req, res, next){
     csv
      .fromString(dataURL, {headers: true})
      .on("data", function(data){
-         High.values.push({ x : data.Product, y : (+data.Highest + +data.High + +data.major)});
-         Normal.values.push({ x : data.Product, y : +data.Normal});
+         High.values.push({ x : data.Product, y : (+data.Highest + +data.High)});
+         Normal.values.push({ x : data.Product, y : (+data.Normal + +data.---)});
          Low.values.push({ x : data.Product, y : (+data.Low + +data.Lowest)});
      })
      .on("end", function(){
