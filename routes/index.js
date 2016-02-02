@@ -102,6 +102,7 @@ router.get('/bugseverity', function(req, res, next){
      .on("end", function(){
           res.json([enhancement, normal, critical]);
      });
+     console.log(normal);
   });
 });
 
