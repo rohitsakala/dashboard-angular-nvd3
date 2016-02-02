@@ -1,5 +1,6 @@
 
   <div class="page-header">
+    Search: <input ng-model="query">
     <ul>
         <li ng-repeat="product in dataList | filter:query">
           {{product}}
