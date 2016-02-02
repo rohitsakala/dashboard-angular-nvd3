@@ -1,5 +1,17 @@
 var app = angular.module('app');
 
+app.factory('ListService', ['$http', function($http){
+  var o = {
+    ListData :[]
+  };
+  o.getList = function() {
+    return $http.get('/list', {cache: true}).success(function(data){
+      angular.copy(data, o.ListData);
+    });
+  };
+  return o;
+}]);
+
 app.factory('BugStatusService', ['$http', function($http){
   var o = {
     bugStatusData :[]

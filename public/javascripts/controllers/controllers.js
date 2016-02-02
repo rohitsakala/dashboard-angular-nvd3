@@ -1,5 +1,9 @@
 var app = angular.module('app');
 
+app.controller('ListCtrl', ['$scope', 'ListService', function($scope, ListService){
+  $scope.dataList = ListService.listData;
+}]);
+
 app.controller('BugStatusCtrl', ['$scope', 'BugStatusService', function($scope, BugStatusService){
   $scope.optionsBugStatus = {
             chart: {

@@ -8,6 +8,10 @@ router.get('/', function(req, res, next) {
   res.render('index');
 });
 
+router.get('/partials/list.html', function(req, res, next) {
+  res.render('partials/list');
+});
+
 router.get('/partials/bugstatus.html', function(req, res, next) {
   res.render('partials/bugstatus');
 });
@@ -34,6 +38,23 @@ router.get('/partials/overallcoverage.html', function(req, res, next) {
 
 router.get('/partials/about.html', function(req, res, next) {
   res.render('partials/about');
+});
+
+router.get('/list', function(req, res, next){
+  rest.get('https://bugs.opendaylight.org/report.cgi?f1=product&resolution=---&y_axis_field=product&width=1024&height=600&action=wrap&ctype=csv&format=table').on('complete', function(dataURL) {
+    var temp = dataURL.split('\n');
+    temp[0] = "Product,Number of bugs";
+    dataURL = temp.join('\n');
+    var products = [];
+    csv
+     .fromString(dataURL, {headers: true})
+     .on("data", function(data){
+         products.push(data.Product);
+     })
+     .on("end", function(){
+          res.json(products);
+     });
+  });
 });
 
 router.get('/bugstatus', function(req, res, next){

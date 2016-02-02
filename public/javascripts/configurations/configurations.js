@@ -2,6 +2,16 @@ var app = angular.module('app');
 
 app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
+    .state('list', {
+      url: '/list',
+      templateUrl: 'partials/list.html',
+      controller: 'ListCtrl',
+      resolve: {
+        openListPromise: ['ListService', function(ListService){
+          return ListService.getList();
+        }]
+      }
+    })
     .state('bugStatus', {
       url: '/bugstatus',
       templateUrl: 'partials/bugstatus.html',
