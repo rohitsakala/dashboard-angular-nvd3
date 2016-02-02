@@ -52,6 +52,7 @@ router.get('/list', function(req, res, next){
          products.push(data.Product);
      })
      .on("end", function(){
+          console.log(products);
           res.json(products);
      });
   });
