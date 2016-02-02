@@ -1,9 +1,27 @@
 
   <div class="page-header">
-    Search: <input ng-model="query">
-    <ul>
-        <li ng-repeat="product in dataList | filter:query">
-          {{product}}
-        </li>
-      </ul>
-  </div>
+  	
+    Search: <input type="text" class="form-control" placeholder="Search..." ng-model="query">
+    
+    </hr>
+
+    <div class="table-responsive">
+    	<table class="table table-striped">
+        	<thead>
+            	<tr>
+                  <th>S.No</th>
+                  <th>Project Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="product in dataList  | filter:query">
+					<td>
+					 {{$index + 1}}
+					</td>
+					<td>
+					{{ product }}
+					</td>
+				</tr>
+            </tbody>
+        </table>
+    </div>
