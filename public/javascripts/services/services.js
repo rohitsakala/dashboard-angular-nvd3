@@ -9,6 +9,7 @@ app.factory('ListService', ['$http', function($http){
       angular.copy(data, o.ListData);
     });
   };
+  console.log(o);
   return o;
 }]);
 
