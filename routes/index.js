@@ -100,9 +100,9 @@ router.get('/bugseverity', function(req, res, next){
          enhancement.values.push({ x : data.Product, y : +data.enhancement});
      })
      .on("end", function(){
+          console.log(normal);
           res.json([enhancement, normal, critical]);
      });
-     console.log(normal);
   });
 });
 
